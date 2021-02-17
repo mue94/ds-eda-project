@@ -1,4 +1,4 @@
-# ds-eda-project1
+# ds-eda-project
 
 The focus of this project is on the descriptive data analysis techniques and serves to demonstrate the data science life cycle using linear regression.
 
