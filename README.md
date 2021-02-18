@@ -1,4 +1,4 @@
-# EDA project bank wages
+# EDA Project
 
 The focus of this project is on the descriptive data analysis techniques and serves to demonstrate the data science life cycle using linear regression.
 
