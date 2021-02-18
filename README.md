@@ -20,7 +20,7 @@ This repository contains:
   - a notebook that guides you through the steps of the EDA
   - a presentation that summarizes the most important findings
   - a trained model of the multivariate linear regression as .ipynb-File and .py-File
- and
+and
   - a requirements file that includes the necessary libraries
 
 
