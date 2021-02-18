@@ -1,139 +1,49 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": 7,
-   "id": "administrative-springfield",
-   "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "                            OLS Regression Results                            \n",
-      "==============================================================================\n",
-      "Dep. Variable:                 SALARY   R-squared:                       0.826\n",
-      "Model:                            OLS   Adj. R-squared:                  0.820\n",
-      "Method:                 Least Squares   F-statistic:                     144.5\n",
-      "Date:                Wed, 17 Feb 2021   Prob (F-statistic):          9.86e-131\n",
-      "Time:                        20:43:31   Log-Likelihood:                -3917.4\n",
-      "No. Observations:                 379   AIC:                             7861.\n",
-      "Df Residuals:                     366   BIC:                             7912.\n",
-      "Df Model:                          12                                         \n",
-      "Covariance Type:            nonrobust                                         \n",
-      "==============================================================================\n",
-      "                 coef    std err          t      P>|t|      [0.025      0.975]\n",
-      "------------------------------------------------------------------------------\n",
-      "const       8805.7835   1574.129      5.594      0.000    5710.311    1.19e+04\n",
-      "SALBEGIN       1.3017      0.091     14.345      0.000       1.123       1.480\n",
-      "edu_12     -1041.1453   1117.035     -0.932      0.352   -3237.757    1155.466\n",
-      "edu_14      -648.4995   3960.605     -0.164      0.870   -8436.898    7139.899\n",
-      "edu_15       937.1170   1265.383      0.741      0.459   -1551.216    3425.450\n",
-      "edu_18      1740.3533   2820.787      0.617      0.538   -3806.631    7287.338\n",
-      "edu_19      2999.3886   2063.909      1.453      0.147   -1059.220    7057.997\n",
-      "edu_20     -7435.1979   5571.994     -1.334      0.183   -1.84e+04    3521.942\n",
-      "edu_21     -8387.7805   7750.491     -1.082      0.280   -2.36e+04    6853.302\n",
-      "mino_1      -852.5905    993.369     -0.858      0.391   -2806.017    1100.837\n",
-      "gd_1        2004.8322   1008.923      1.987      0.048      20.818    3988.846\n",
-      "jcat_2      1444.4908   1905.431      0.758      0.449   -2302.477    5191.458\n",
-      "jcat_3      1.377e+04   1777.007      7.746      0.000    1.03e+04    1.73e+04\n",
-      "==============================================================================\n",
-      "Omnibus:                      165.150   Durbin-Watson:                   2.053\n",
-      "Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1329.138\n",
-      "Skew:                           1.638   Prob(JB):                    2.41e-289\n",
-      "Kurtosis:                      11.570   Cond. No.                     3.80e+05\n",
-      "==============================================================================\n",
-      "\n",
-      "Notes:\n",
-      "[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n",
-      "[2] The condition number is large, 3.8e+05. This might indicate that there are\n",
-      "strong multicollinearity or other numerical problems.\n",
-      "-------------\n",
-      "RMSE on train data: 7460.171269346517\n",
-      "RMSE on test data: 6366.352903928775\n"
-     ]
-    }
-   ],
-   "source": [
-    "import pandas as pd #import necassary packages\n",
-    "import statsmodels.api as sms\n",
-    "from sklearn.model_selection import train_test_split\n",
-    "from sklearn.metrics import mean_squared_error\n",
-    "import numpy as np\n",
-    "import pickle\n",
-    "\n",
-    "df = pd.read_csv('us_bank_wages/us_bank_wages.txt', delimiter=\"\\t\") #read the csv-file\n",
-    "\n",
-    "df.drop('Unnamed: 0', axis = 1, inplace = True) #drop unnecassary index column\n",
-    "\n",
-    "educ_dummies = pd.get_dummies(df['EDUC'], prefix='edu', drop_first=True) #create dummie-variables\n",
-    "gender_dummies = pd.get_dummies(df['GENDER'], prefix='gd', drop_first=True)\n",
-    "minority_dummies = pd.get_dummies(df['MINORITY'], prefix='mino', drop_first=True)\n",
-    "jobcat_dummies = pd.get_dummies(df['JOBCAT'], prefix='jcat', drop_first=True)\n",
-    "\n",
-    "df = df.drop(['EDUC','GENDER','MINORITY','JOBCAT'], axis=1) #drop origin columns\n",
-    "\n",
-    "df = pd.concat([df, educ_dummies, gender_dummies, minority_dummies, jobcat_dummies], axis=1) #add created dummie variables\n",
-    "\n",
-    "#feature engineering\n",
-    "X = df[['SALBEGIN', 'edu_12', 'edu_14', 'edu_15', 'edu_18', 'edu_19', 'edu_20', 'edu_21', 'mino_1', 'gd_1', 'jcat_2', 'jcat_3']]\n",
-    "Y = df['SALARY']\n",
-    "\n",
-    "X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42) #splitting the dataset\n",
-    "\n",
-    "X_train = sms.add_constant(X_train) #adding the constant\n",
-    "X_test = sms.add_constant(X_test)\n",
-    "\n",
-    "model = sms.OLS(y_train, X_train).fit() #training the model\n",
-    "print_model = model.summary()\n",
-    "\n",
-    "predictions = model.predict(X_train) #evaluating the model\n",
-    "err_train = np.sqrt(mean_squared_error(y_train, predictions))\n",
-    "predictions_test = model.predict(X_test)\n",
-    "err_test = np.sqrt(mean_squared_error(y_test, predictions_test))\n",
-    "\n",
-    "print(print_model) #get the test size\n",
-    "print (\"-------------\") \n",
-    "print (f\"RMSE on train data: {err_train}\")\n",
-    "print (f\"RMSE on test data: {err_test}\")\n",
-    "\n",
-    "with open ('model','wb') as f: #save the model\n",
-    "    pickle.dump(model,f)\n",
-    "    \n",
-    "#usable with: with open ('model','rb') as f:\n",
-    "             # model = pickle.load(f)\n",
-    "             # e. g.  float(model.predict([1,40000,0,0,0,1,0,0,0,1,0,0,0]))\n",
-    "             # Output: 61759.65801460731"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "stock-stranger",
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.8.5"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
+import pandas as pd #import necassary packages
+import statsmodels.api as sms
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+import numpy as np
+import pickle
+
+df = pd.read_csv('us_bank_wages/us_bank_wages.txt', delimiter="\t") #read the csv-file
+
+df.drop('Unnamed: 0', axis = 1, inplace = True) #drop unnecassary index column
+
+educ_dummies = pd.get_dummies(df['EDUC'], prefix='edu', drop_first=True) #create dummie-variables
+gender_dummies = pd.get_dummies(df['GENDER'], prefix='gd', drop_first=True)
+minority_dummies = pd.get_dummies(df['MINORITY'], prefix='mino', drop_first=True)
+jobcat_dummies = pd.get_dummies(df['JOBCAT'], prefix='jcat', drop_first=True)
+
+df = df.drop(['EDUC','GENDER','MINORITY','JOBCAT'], axis=1) #drop origin columns
+
+df = pd.concat([df, educ_dummies, gender_dummies, minority_dummies, jobcat_dummies], axis=1) #add created dummie variables
+
+#feature engineering
+X = df[['SALBEGIN', 'edu_12', 'edu_14', 'edu_15', 'edu_18', 'edu_19', 'edu_20', 'edu_21', 'mino_1', 'gd_1', 'jcat_2', 'jcat_3']]
+Y = df['SALARY']
+
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42) #splitting the dataset
+
+X_train = sms.add_constant(X_train) #adding the constant
+X_test = sms.add_constant(X_test)
+
+model = sms.OLS(y_train, X_train).fit() #training the model
+print_model = model.summary()
+
+predictions = model.predict(X_train) #evaluating the model
+err_train = np.sqrt(mean_squared_error(y_train, predictions))
+predictions_test = model.predict(X_test)
+err_test = np.sqrt(mean_squared_error(y_test, predictions_test))
+
+print(print_model) #get the test size
+print ("-------------") 
+print (f"RMSE on train data: {err_train}")
+print (f"RMSE on test data: {err_test}")
+
+with open ('model','wb') as f: #save the model
+    pickle.dump(model,f)
+    
+#usable with: with open ('model','rb') as f:
+             # model = pickle.load(f)
+             # e. g.  float(model.predict([1,40000,0,0,0,1,0,0,0,1,0,0,0]))
+             # Output: 61759.65801460731
