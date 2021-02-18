@@ -45,5 +45,5 @@ with open ('model','wb') as f: #save the model
     
 #usable with: with open ('model','rb') as f:
              # model = pickle.load(f)
-             # e. g.  float(model.predict([1,40000,0,0,0,1,0,0,0,1,0,0,0]))
+             # e. g.  float(model.predict([1,40000,0,0,0,1,0,0,0,1,0,0,0])
              # Output: 61759.65801460731
